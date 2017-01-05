@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>make training</title>
+	<link rel="stylesheet" href="https://rawgit.com/hakimel/reveal.js/master/css/reveal.css">
+	<link rel="stylesheet" href="https://rawgit.com/hakimel/reveal.js/master/css/theme/moon.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/xt256.min.css">
+</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<div class="slides">
+
+				<section>
+					<section>
+						<h1>Makefile</h1>
+					</section>
+
+					<section>
+						<h1>about @me</h1>
+						<a href="https://www.linkedin.com/in/kokaipeter"><i class="fa fa-linkedin-square fa-3x" aria-hidden="true"></i></a>
+						<a href="https://github.com/Kokan"><i class="fa fa-github fa-3x" aria-hidden="true"></i></a>
+						<a href="mailto:kokaipeter@gmail.com"><i class="fa fa-at fa-3x" aria-hidden="true"></i></a>
+						<a href="http://kokan.github.io"><i class="fa fa-book fa-3x" aria-hidden="true"></i></a>
+						<a href="https://twitter.com/K0k4n"><i class="fa fa-twitter fa-3x" aria-hidden="true"></i></a>
+					</section>
+				</section>
+
+				<section id="deep-dive">
+					<!--<h2>Deep dive</h2>-->
+					<pre><code class="makefile" data-trim data-noescape>
+# KERNELRELEASE can change from a few different places, meaning version.h
+# needs to be updated, so this check is forced on all builds
+
+uts_len := 64
+define filechk_utsrelease.h
+        if [ `echo -n "$(KERNELRELEASE)" | wc -c ` -gt $(uts_len) ]; then \
+          echo '"$(KERNELRELEASE)" exceeds $(uts_len) characters' >&2;    \
+          exit 1;                                                         \
+        fi;                                                               \
+        (echo \#define UTS_RELEASE \"$(KERNELRELEASE)\";)
+endef
+
+define filechk_version.h
+        (echo \#define LINUX_VERSION_CODE $(shell                         \
+        expr $(VERSION) \* 65536 + 0$(PATCHLEVEL) \* 256 + 0$(SUBLEVEL)); \
+        echo '#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))';)
+endef
+
+$(version_h): $(srctree)/Makefile FORCE
+        $(call filechk,version.h)
+        $(Q)rm -f $(old_version_h)
+
+include/generated/utsrelease.h: include/config/kernel.release FORCE
+        $(call filechk,utsrelease.h)
+
+PHONY += headerdep
+headerdep:
+        $(Q)find $(srctree)/include/ -name '*.h' | xargs --max-args 1 \
+        $(srctree)/scripts/headerdep.pl -I$(srctree)/include
+
+
+					</code></pre>
+				</section>
+
+				<section class="basic">
+				<section>
+					<h2>Basic</h2>
+					<pre><code class="makefile" data-trim data-noescape>
+target#1: [dependency#1 dependency#2]
+          [command#1]
+          [command#2]
+
+					</code></pre>
+				</section>
+				<section>
+					<h2>Simple</h2>
+					<pre><code class="makefile" data-trim data-noescape>
+README:
+	touch README
+
+					</code></pre>
+				</section>
+				<section data-notes="No we are able to clean up.">
+					<h2>Wrappers</h2>
+					<pre><code class="makefile" data-trim data-noescape>
+all: README
+
+README:
+	touch README
+
+clean:
+	rm -f README
+
+					</code></pre>
+				</section>
+				<section>
+					<h2>Macro</h2>
+					<pre><code class="makefile" data-trim data-noescape>
+CC=touch
+TARGET=README
+all: ${TARGET}
+
+${TARGET}: makefile
+	$(CC) $@
+
+clean:
+	$(RM) ${TARGET}
+
+					</code></pre>
+				</section>
+				<section>
+					<h2>Dependency</h2>
+					<pre><code class="makefile" data-trim data-noescape>
+CC=touch
+TARGET=00 10 11 12 20
+
+all: ${TARGET}
+
+20: 00
+10: 00
+11: 10
+12: 10
+
+${TARGET}: makefile
+	$(CC) $@
+
+clean:
+	$(RM) ${TARGET}
+					</code></pre>
+				</section>
+				<section>
+					<h2>Execute</h2>
+					<i class="fa fa-terminal" aria-hidden="true"></i> make
+					<pre><code data-trim data-noescape>
+/usr/bin/touch 00
+/usr/bin/touch 10
+/usr/bin/touch 11
+/usr/bin/touch 12
+/usr/bin/touch 20
+					</code></pre>
+					<i class="fa fa-terminal" aria-hidden="true"></i> make -j
+					<pre><code data-trim data-noescape>
+/usr/bin/touch 00
+/usr/bin/touch 10
+/usr/bin/touch 20
+/usr/bin/touch 11
+/usr/bin/touch 12
+					</code></pre>
+				</section>
+				</section>
+
+				<section>
+				<section>
+					<h2>A simple app</h2>
+					<pre><code class="ini" data-trim data-noescape>├── include
+│   └── main.hpp
+├── lib
+│   ├── include
+│   │   ├── console.hpp
+│   │   ├── loglib.hpp
+│   │   ├── stdio.console.hpp
+│   │   ├── stdio.interface.hpp
+│   │   └── stdio.twice.hpp
+│   └── src
+│       ├── console.cpp
+│       ├── loglib.cpp
+│       ├── stdio.console.cpp
+│       └── stdio.twice.cpp
+├── makefile
+└── src
+    └── main.cpp</code></pre>
+				</section>
+				<section>
+					<h2>Quick Overview</h2>
+				</section>
+				<section>
+					<h2>main</h2>
+					<pre><code class="c++" data-trim data-noescape>
+#ifndef _MAIN_
+#define _MAIN_
+
+#include "loglib.hpp"
+#include "console.hpp"
+
+#endif //_MAIN_
+
+
+					</code></pre>
+					<pre><code class="c++" data-trim data-noescape>
+#include "main.hpp"
+
+int main() {
+	Console console(loglib::get());
+
+	console << "HW!" << std::endl;
+	return 0;
+}
+
+
+					</code></pre>
+				</section>
+				<section>
+					<h2>loglib</h2>
+					<pre><code class="c++" data-trim data-noescape>#include "loglib.hpp"
+
+#if (TWICE)
+#include "stdio.twice.hpp"
+#else
+#include "stdio.console.hpp"
+#endif
+
+stdio* loglib::get()
+{
+#if (TWICE)
+	return new twice();
+#else
+	return new console();
+#endif
+} </code></pre>
+				</section>
+				<section>
+					<h2>makefile</h2>
+					<pre><code class="makefile" data-trim data-noescape># Macros
+
+# Configuration
+TWICE=0
+
+# Runtime binaries
+MK=mkdir
+
+# Directories
+DIR=build
+LDIR=$(DIR)/lib
+DIRS=$(DIR) $(LDIR)
+
+# Loglib Shared Object
+LIB=$(DIR)/loglib.so
+SOBJ=$(LDIR)/loglib.o $(LDIR)/console.o $(LDIR)/stdio.console.o $(LDIR)/stdio.twice.o
+
+# Binary
+OBJ=$(DIR)/main.o 
+BIN=$(DIR)/textproc
+
+# Helper targets
+all: $(DIRS) $(BIN)
+
+clean:
+	$(RM) $(BIN) $(OBJ)
+	$(RM) -r $(DIRS)
+
+help:
+	@cat README.md
+
+.PHONY: all clean help
+
+$(DIRS):
+	$(MK) $@
+
+# loglib.so shared object
+$(DIR)/loglib.so: $(SOBJ)
+	$(CXX) -shared -o $@ $(LDFLAGS) $^
+
+$(LDIR)/loglib.o: lib/src/loglib.cpp lib/include/loglib.hpp lib/include/stdio.interface.hpp
+	$(CXX) -c -fPIC -DTWICE=$(TWICE) -Ilib/include -o $@ $(CFLAGS) lib/src/loglib.cpp
+
+$(LDIR)/console.o: lib/src/console.cpp lib/include/console.hpp lib/include/stdio.interface.hpp
+	$(CXX) -c -fPIC -Ilib/include -o $@ $(CFLAGS) lib/src/console.cpp
+
+$(LDIR)/stdio.console.o: lib/src/stdio.console.cpp lib/include/stdio.console.hpp
+	$(CXX) -c -fPIC -Ilib/include -o $@ $(CFLAGS) lib/src/stdio.console.cpp
+
+$(LDIR)/stdio.twice.o: lib/src/stdio.twice.cpp lib/include/stdio.twice.hpp lib/include/stdio.console.hpp lib/include/stdio.interface.hpp
+	$(CXX) -c -fPIC -Ilib/include -o $@ $(CFLAGS) lib/src/stdio.twice.cpp
+
+# Binary
+$(DIR)/main.o: include/main.hpp lib/include/loglib.hpp lib/include/stdio.interface.hpp lib/include/console.hpp src/main.cpp
+	$(CXX) -c -Ilib/include -Iinclude -o $@ $(CFLAGS) src/main.cpp
+
+$(BIN): $(OBJ) $(LIB)
+	$(CXX) $(LDFLAGS) -o $(BIN) $^ </code></pre>
+				</section>
+				<section>
+					<h2>Macro</h2>
+					<pre><code class="makefile" data-trim data-noescape># Configuration
+TWICE=0
+# Runtime binaries
+MK=mkdir
+
+# Directories
+DIR=build
+LDIR=$(DIR)/lib
+DIRS=$(DIR) $(LDIR)
+
+# Loglib Shared Object
+LIB=$(DIR)/loglib.so
+SOBJ=$(LDIR)/loglib.o $(LDIR)/console.o $(LDIR)/stdio.console.o $(LDIR)/stdio.twice.o
+
+# Binary
+OBJ=$(DIR)/main.o 
+BIN=$(DIR)/textproc</code></pre>
+				</section>
+				<section>
+					<h2>PHONY</h2>
+					<pre><code class="makefile" data-trim data-noescape>
+# Helper targets
+all: $(DIRS) $(BIN)
+
+clean:
+	$(RM) $(BIN) $(OBJ)
+	$(RM) -r $(DIRS)
+
+help:
+	@cat README.md
+
+.PHONY: all clean help
+
+$(DIRS):
+	$(MK) $@
+					</code></pre>
+				</section>
+				<section>
+					<h2>Shared Object</h2>
+					<pre><code class="makefile" data-trim data-noescape>
+# loglib.so shared object
+$(DIR)/loglib.so: $(SOBJ)
+	$(CXX) -shared -o $@ $(LDFLAGS) $^
+
+$(LDIR)/loglib.o: lib/src/loglib.cpp lib/include/loglib.hpp lib/include/stdio.interface.hpp
+	$(CXX) -c -fPIC -DTWICE=$(TWICE) -Ilib/include -o $@ $(CFLAGS) lib/src/loglib.cpp
+
+$(LDIR)/console.o: lib/src/console.cpp lib/include/console.hpp lib/include/stdio.interface.hpp
+	$(CXX) -c -fPIC -Ilib/include -o $@ $(CFLAGS) lib/src/console.cpp
+
+$(LDIR)/stdio.console.o: lib/src/stdio.console.cpp lib/include/stdio.console.hpp
+	$(CXX) -c -fPIC -Ilib/include -o $@ $(CFLAGS) lib/src/stdio.console.cpp
+
+$(LDIR)/stdio.twice.o: lib/src/stdio.twice.cpp lib/include/stdio.twice.hpp lib/include/stdio.console.hpp lib/include/stdio.interface.hpp
+	$(CXX) -c -fPIC -Ilib/include -o $@ $(CFLAGS) lib/src/stdio.twice.cpp
+					</code></pre>
+				</section>
+				<section>
+					<h2>Binary</h2>
+					<pre><code class="makefile" data-trim data-noescape>
+# Binary
+$(DIR)/main.o: include/main.hpp lib/include/loglib.hpp lib/include/stdio.interface.hpp lib/include/console.hpp src/main.cpp
+	$(CXX) -c -Ilib/include -Iinclude -o $@ $(CFLAGS) src/main.cpp
+
+$(BIN): $(OBJ) $(LIB)
+	$(CXX) $(LDFLAGS) -o $(BIN) $^
+					</code></pre>
+				</section>
+				</section>
+
+				<section>
+				<section>
+					<h2>tips & tricks</h2>
+				</section>
+				<section>
+					<h2>Control flow</h2>
+					<i class="fa fa-code-fork fa-3x" aria-hidden="true"></i>
+				</section>
+				<section>
+					<h2>No single `make` implementation exists!</h2>
+					<ul>
+						<li class="fragment" data-fragment-index="2">SunPro make</li>
+						<li class="fragment" data-fragment-index="6">dmake</li>
+						<li class="fragment" data-fragment-index="3"><span class="fragment highlight-green" data-fragment-index="8">GNU make</span></li>
+						<li class="fragment" data-fragment-index="4">BSD make</li>
+						<li class="fragment" data-fragment-index="1">Microsoft make</li>
+						<li class="fragment" data-fragment-index="7">...</li>
+					</ul>
+				</section>
+				<section>
+					<h2><i class="fa fa-code-fork" aria-hidden="true"></i> Control flow</h2>
+					<pre><code class="makefile" data-trim data-noescape>
+ifeq ($(CC),gcc)
+  LIBS=$(libs_for_gcc)
+else
+  LIBS=$(normal_libs)
+endif
+					</code></pre>
+					<h4>or</h4>
+					<pre><code class="makefile" data-trim data-noescape>
+#But they are not really equals...
+LIBS_gcc=$(libs_for_gcc)
+LIBS_clang=$(libs_for_clang)
+LIBS=$(LIBS_$(CC))
+					</code></pre>
+				</section>
+				<section>
+					<h2>Macro - string functions</h2>
+					<pre><code class="makefile" data-trim data-noescape>
+$(subst from,to,text)
+
+override CFLAGS += $(patsubst %,-I%,$(subst :, ,$(VPATH)))
+					</code></pre>
+				</section>
+				<section>
+					<h2>Default rules</h2>
+					<pre><code class="makefile" data-trim data-noescape>
+.c.o:
+    $(CC) $(CFLAGS) -c $<
+					</code></pre>
+				</section>
+				</section>
+				<section>
+					<i class="fa fa-question fa-5x" aria-hidden="true"></i>
+					<i class="fa fa-lightbulb-o fa-5x" aria-hidden="true"></i>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="https://use.fontawesome.com/19010dbc51.js"></script>
+
+		<script type="text/javascript" src="https://rawgit.com/hakimel/reveal.js/master/js/reveal.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+
+		<script>
+			Reveal.initialize({
+				width: '100%',
+				height: '100%'
+			});
+			hljs.initHighlightingOnLoad();
+		</script>
+
+</body>
+</html>
