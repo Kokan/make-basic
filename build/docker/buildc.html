@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>How to use containers for development</title>
+	<link rel="stylesheet" href="https://rawgit.com/hakimel/reveal.js/master/css/reveal.css">
+	<link rel="stylesheet" href="https://rawgit.com/hakimel/reveal.js/master/css/theme/simple.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/xt256.min.css">
+</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<div class="slides">
+
+				<section>
+					<section data-background-image="http://ghanashippingguide.com/wp-content/uploads/2015/03/shipping-container-offices-7.jpg">
+						<h1 style="background-color: rgba(0, 0, 0, 0.6); color: white;">How to use containers for development</h1>
+					</section>
+
+					<section>
+						<h1>@me</h1>
+						<a href="https://www.linkedin.com/in/kokaipeter"><i class="fa fa-linkedin-square fa-3x" aria-hidden="true"></i></a>
+						<a href="https://github.com/Kokan"><i class="fa fa-github fa-3x" aria-hidden="true"></i></a>
+						<a href="mailto:kokaipeter@gmail.com"><i class="fa fa-at fa-3x" aria-hidden="true"></i></a>
+						<a href="http://kokan.github.io"><i class="fa fa-book fa-3x" aria-hidden="true"></i></a>
+						<a href="https://twitter.com/K0k4n"><i class="fa fa-twitter fa-3x" aria-hidden="true"></i></a>
+                        <p>
+						<a href="http://people.inf.elte.hu/kopradi/buildcontk">http://people.inf.elte.hu/kopradi/buildcont</a>
+					</section>
+
+				</section>
+
+				<section class="intro">
+				<section>
+                        <h2>Linux container</h2>
+                        <img src="img/linux-container.png" style="background: transparent; border: none; box-shadow: none;"></img>
+				</section>
+
+				<section>
+                        <h2>Quick survey</h2>
+                        <ul>
+                                <li class="fragment">Who uses containers in daily work?</li>
+                                <li class="fragment">Who uses containers in production?</li>
+                                <li class="fragment">Who uses containers other than deploying applications?</li>
+                        </ul>
+				</section>
+				</section>
+
+				<section class="issue">
+				<section data-background-image="http://desktopped.s3.amazonaws.com/wp-content/uploads/2010/09/6-monitor-array-1.jpg">
+					<h2 style="background-color: rgba(0, 0, 0, 0.6); color: white;">Development environment</h2>
+				</section>
+				<section>
+					<h2>The usual stuff</h2>
+                    <ul>
+                            <li class="fragment">Same OS and configuration</li>
+                            <li class="fragment">Common steps for environment setup</li>
+                            <li class="fragment">All of the above depending on your project</li>
+                    </ul>
+				</section>
+				<section>
+					<h2>Change management</h2>
+                    <ul>
+                            <li class="fragment">What about updating stuff ?</li>
+                            <li class="fragment">Switching between projects ?</li>
+                            <li class="fragment">Or prototyping ? </li>
+                    </ul>
+				</section>
+
+				</section>
+
+				<section class="">
+				<section>
+                    <h2>Container already solved it</h2>
+					<pre><code class="Dockerfile" data-trim data-noescape>FROM baseimage:tag
+
+RUN apk add application-run-time-dependency && \
+    apk add application-build-time-dependency && \
+    git clone application-git-repo && \
+    cd application-git-repo && \
+    ./configure && \
+    make && \
+    make install && \
+    rm -rf ../application-git-repo && \
+    apk remove application-build-time-dependency 
+
+ENTRYPOINT ["application"]
+
+					</code></pre>
+				</section>
+				<section>
+                    <h2>Issues</h2>
+                    <ul>
+                        <li class="fragment">Incremental build</li>
+                        <li class="fragment">Deploying without docker?</li>
+                        <li class="fragment">Unit tests, Debug ?</li>
+                    </ul>
+				</section>
+				<section>
+                    <h2>Incrementalish build</h2>
+					<pre class="fragment"><code class="Dockerfile" data-trim data-noescape>FROM baseimage:tag
+
+RUN apk add application-run-time-dependency
+RUN apk add application-build-time-dependency
+RUN git clone application-git-repo
+RUN cd application-git-repo
+RUN ./configure 
+RUN make 
+RUN make install
+RUN rm -rf ../application-git-repo 
+RUN apk remove application-build-time-dependency 
+
+ENTRYPOINT ["application"]
+
+					</code></pre>
+				</section>
+				</section>
+
+				<section class="buildcontainer">
+				<section data-background-image="http://www.thebluediamondgallery.com/wooden-tile/images/plan-b.jpg">
+                    <ul>
+                        <li style="list-style-type: none;  background-color: rgba(0, 0, 0, 0.6); color: white;" class="fragment">Make container transparent</li>
+                        <li style="list-style-type: none; background-color: rgba(0, 0, 0, 0.6); color: white;" class="fragment">One for deploying</li>
+                        <li style="list-style-type: none; background-color: rgba(0, 0, 0, 0.6); color: white;" class="fragment">One for building</li>
+                    </ul>
+				</section>
+				<section>
+                    <h2>App B</h2>
+					<pre class="fragment"><code class="Dockerfile" data-trim data-noescape>FROM baseimage:tag
+
+RUN apk add application-run-time-dependency && \
+    apk add application-build-time-dependency && \
+    apk add developer-tools && \
+    apk add convienent-tools
+
+					</code></pre>
+                    <h4 class="fragment">Okay okay, but what have we gained here ?!</h4>
+				</section>
+				<section>
+                    <h2>Build environment</h2>
+                    <ul>
+                        <li class="fragment">Documented</li>
+                        <li class="fragment">Version controlled</li>
+                        <li class="fragment">Easy to share and modify</li>
+                    </ul>
+				</section>
+				</section>
+
+				<section>
+					<i class="fa fa-question fa-5x" aria-hidden="true"></i>
+					<i class="fa fa-lightbulb-o fa-5x" aria-hidden="true"></i>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="https://use.fontawesome.com/19010dbc51.js"></script>
+
+		<script type="text/javascript" src="https://rawgit.com/hakimel/reveal.js/master/js/reveal.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+
+		<script>
+			Reveal.initialize({
+				width: '100%',
+				height: '100%'
+			});
+			hljs.initHighlightingOnLoad();
+		</script>
+
+</body>
+</html>
