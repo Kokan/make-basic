@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>cmake introduction</title>
+	<link rel="stylesheet" href="https://rawgit.com/hakimel/reveal.js/master/css/reveal.css">
+	<link rel="stylesheet" href="https://rawgit.com/hakimel/reveal.js/master/css/theme/moon.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/xt256.min.css">
+</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<div class="slides">
+
+				<section>
+					<section>
+						<h1>CMake</h1>
+					</section>
+
+					<section>
+						<h1>about @me</h1>
+						<a href="https://www.linkedin.com/in/kokaipeter"><i class="fa fa-linkedin-square fa-3x" aria-hidden="true"></i></a>
+						<a href="https://github.com/Kokan"><i class="fa fa-github fa-3x" aria-hidden="true"></i></a>
+						<a href="mailto:kokaipeter@gmail.com"><i class="fa fa-at fa-3x" aria-hidden="true"></i></a>
+						<a href="http://kokan.github.io"><i class="fa fa-book fa-3x" aria-hidden="true"></i></a>
+						<a href="https://twitter.com/K0k4n"><i class="fa fa-twitter fa-3x" aria-hidden="true"></i></a>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h1>Agenda</h1>
+
+						<ul>
+							<li class="fragment" data-fragment-index="1">Yet another build tool</li>
+							<li class="fragment" data-fragment-index="2">...</li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h1>Yet another bulid tool</h1>
+					</section>
+
+					<section>
+						<h1>Some basic facts</h1>
+
+						<ul>
+							<li class="fragment" data-fragment-index="1">CMake is a tool to generate a build system</li>
+							<li class="fragment" data-fragment-index="2">Cross platform</li>
+							<li class="fragment" data-fragment-index="3">Source code: CMakeLists.txt, and .cmake files</li>
+						</ul>
+					</section>
+
+					<section>
+						<h1>How to build ?</h1>
+
+						<ul>
+							<li>Generate build system</li>
+						</ul>
+
+						<pre><code class="bash" data-trim data-noescape>
+~/workspace/projecta/build> cmake ~/workspace/projecta/source
+-- The C compiler identification is Clang 6.0.0
+-- Check for working C compiler: /usr/bin/ccache
+-- Check for working C compiler: /usr/bin/ccache -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+...
+-- Configuring done
+-- Generating done
+-- Build files have been written to: ~/workspace/projecta/build
+						</code></pre>
+					</section>
+
+					<section>
+						<h1>How to build ?</h1>
+
+						<ul>
+							<li>Build</li>
+						</ul>
+
+						<pre><code class="bash" data-trim data-noescape>
+~/workspace/projecta/build> make
+[  4%] Built target hoo
+[  8%] Built target boo
+...
+[100%] Built target boohoo
+[100%] Building C object boohoo/CMakeFiles/boohoo.dir/boohoo.c.o
+[100%] Linking C executable boohoo
+[100%] Built target boohoo
+						</code></pre>
+					</section>
+
+					<section>
+						<h1>Targets</h1>
+
+						<ul>
+							<li>help</li>
+							<li>all (default)</li>
+							<li>install</li>
+							<li>clean</li>
+							<li>test</li>
+						</ul>
+
+					</section>
+
+					<section>
+						<h1>Configuring cmake</h1>
+
+						<ul>
+							<li>ccmake</li>
+							<li>cmake-gui</li>
+							<li>cmake</li>
+						</ul>
+
+					</section>
+				</section>
+
+				<section id="cmake-user-guide">
+					<pre><code class="cmake" data-trim data-noescape>
+cmake_project(Foo C)
+
+					</code></pre>
+				</section>
+
+
+				<section>
+					<i class="fa fa-question fa-5x" aria-hidden="true"></i>
+					<i class="fa fa-lightbulb-o fa-5x" aria-hidden="true"></i>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="https://use.fontawesome.com/19010dbc51.js"></script>
+
+		<script type="text/javascript" src="https://rawgit.com/hakimel/reveal.js/master/js/reveal.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+
+		<script>
+			Reveal.initialize({
+				width: '100%',
+				height: '100%'
+			});
+			hljs.initHighlightingOnLoad();
+		</script>
+
+</body>
+</html>
