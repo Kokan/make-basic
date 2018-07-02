@@ -135,6 +135,7 @@
 							<li>CMAKE_BUILD_TYPE</li>
 							<li>CMAKE_INSTALL_PREFIX</li>
 							<li>CMAKE_VERBOSE_MAKEFILE</li>
+							<li>BUILD_TESTING</li>
 						</ul>
 					</section>
 				</section>
@@ -269,13 +270,146 @@ Built target ExperimentalMemCheck
 						</code></pre>
 
 					</section>
+
+					<section>
+						<h1>Graphiz</h1>
+
+						<pre><code class="cmake" data-trim data-noescape>
+~/workspace/projecta/build> cmake -DBULID_TESTING=off .
+~/workspace/projecta/build> cmake --graphviz=/tmp/foo/foo .
+~/workspace/projecta/build> dot /tmp/foo/foo -Tpng -o foo.png
+						</code></pre>
+						<img src="img/graphiz.png" style="background: transparent; border: none; box-shadow: none;"></img>
+
+					</section>
+
+					<section>
+						<h1>Generators</h1>
+
+						<ul>
+							<li>Sublime (demo)</li>
+							<li>Ninja</li>
+						</ul>
+
+					</section>
 				</section>
 
-				<section id="cmake-user-guide">
-					<pre><code class="cmake" data-trim data-noescape>
-cmake_project(Foo C)
+				<section>
+					<section>
+						<h1>cmake language</h1>
+					</section>
 
-					</code></pre>
+					<section>
+						<h1>variables</h1>
+
+						<pre><code class="cmake" data-trim data-noescape>
+~# cat CMakeLists.txt
+set(Variable "Value")
+MESSAGE("${VARIABLE}")
+message("${Variable}")
+~# cmake -P CMakeLists.txt
+
+Value
+						</code></pre>
+					</section>
+
+					<section>
+						<h1>variables</h1>
+
+						<pre><code class="cmake" data-trim data-noescape>
+~# cat CMakeLists.txt
+set(Variable   "1")
+set(Variable_1 "2")
+message("${Variable_${Variable}}")
+						</code></pre>
+						<pre><code class="cmake" data-trim data-noescape>
+~# cmake -P CMakeLists.txt
+2
+						</code></pre>
+					</section>
+
+					<section>
+						<h1>boolean</h1>
+
+						<table>
+						<thead>
+							<tr>
+								<th>False</th>
+								<th>True</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>OFF</td>
+								<td>ON</td>
+							</tr>
+							<tr>
+								<td>N</td>
+								<td>Y</td>
+							</tr>
+							<tr>
+								<td>NO</td>
+								<td>YE/YES</td>
+							</tr>
+							<tr>
+								<td>0</td>
+								<td>1</td>
+							</tr>
+							<tr>
+								<td>""</td>
+								<td>everything not listed under false</td>
+							</tr>
+							<tr>
+								<td>null variable</td>
+							</tr>
+							<tr>
+								<td>NOTFOUND</td>
+							</tr>
+							<tr>
+								<td>string ending -NOTFOUND</td>
+							</tr>
+						</tbody>
+					</table>
+					</section>
+
+					<section>
+						<h1>list</h1>
+
+						<pre><code class="cmake" data-trim data-noescape>~# cat CMakeLists.txt
+set(str "1 2 3 4 5")
+set(lst 1 2 3 4 5)
+message("str ${str}\nlst ${lst}")
+set(str "${str} 6")
+set(lst1 "${lst}")
+list(APPEND lst1 6)
+set(lst "${lst} 6")
+message("str ${str}\nlst ${lst}\nlst1 ${lst1}")
+
+~# cmake -P CMakeLists.txt
+str 1 2 3 4 5
+lst 1;2;3;4;5
+str 1 2 3 4 5 6
+lst 1;2;3;4;5 6
+lst1 1;2;3;4;5;6
+						</code></pre>
+					</section>
+
+					<section>
+						<h1>control flow</h1>
+
+						<pre><code class="cmake" data-trim data-noescape>~# cat CMakeLists.txt
+set(str "1;2;3;4")
+foreach( num ${str})
+  if (${num} GREATER 2)
+    message("${num}" )
+  endif()
+endforeach()
+
+~# cmake -P CMakeLists.txt
+3
+4
+						</code></pre>
+					</section>
 				</section>
 
 
