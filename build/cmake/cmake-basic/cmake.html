@@ -113,11 +113,160 @@
 					<section>
 						<h1>Configuring cmake</h1>
 
+						<img src="img/ccmake.png" style="background: transparent; border: none; box-shadow: none;"></img>
+						<img src="img/cmake-gui.png" style="background: transparent; border: none; box-shadow: none; "></img>
+
+					</section>
+
+					<section>
+						<h1>cmake options</h1>
+
 						<ul>
-							<li>ccmake</li>
-							<li>cmake-gui</li>
-							<li>cmake</li>
+							<li>Set variable: -D VAR=VALUE or -DVAR=VALUE</li>
+							<li>Select generator: -G Ninja</li>
+							<li>List variables and values: -LH</li>
 						</ul>
+					</section>
+
+					<section>
+						<h1>Variables</h1>
+
+						<ul>
+							<li>CMAKE_BUILD_TYPE</li>
+							<li>CMAKE_INSTALL_PREFIX</li>
+							<li>CMAKE_VERBOSE_MAKEFILE</li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h1>How to test?</h1>
+
+					<pre><code class="cmake" data-trim data-noescape>
+~/workspace/projecta/build> make test
+[0/1] Running tests...
+Test project ~/workspace/projecta/build
+        Start   1: test_a
+  1/5   Test   #1: test_a ............................   Passed    0.03 sec
+...
+        Start   5: test_b
+  5/5   Test   #5: test_b ............................   Passed    0.02 sec
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =  32.67 sec
+					</code></pre>
+					</section>
+
+					<section>
+						<h1>ctest</h1>
+
+					<pre><code class="cmake" data-trim data-noescape>
+~/workspace/projecta/build> ctest
+[0/1] Running tests...
+Test project ~/workspace/projecta/build
+        Start   1: test_a
+  1/5   Test   #1: test_a ............................   Passed    0.03 sec
+...
+        Start   5: test_b
+  5/5   Test   #5: test_b ............................   Passed    0.02 sec
+100% tests passed, 0 tests failed out of 5
+
+Total Test time (real) =  32.67 sec
+					</code></pre>
+					</section>
+
+					<section>
+						<h1>ctest</h1>
+
+						<ul>
+							<li>Source: CTestTestfile.cmake (generated)</li>
+							<li>Parallel: -j</li>
+							<li>Verbose: -V</li>
+							<li>Match running: -R</li>
+							<li>Random execution order: --schedule-random</li>
+						</ul>
+					</section>
+
+					<section>
+						<h1>cdash</h1>
+
+						<pre><code class="cmake" data-trim data-noescape>Experimental
+   Site: peterkokai-work
+   Build name: Linux-ccache
+Create new tag: 20180702-0501 - Experimental
+Configure project
+   Each . represents 1024 bytes of output
+    . Size of output: 0K
+Build project
+   Each symbol represents 1024 bytes of output.
+   '!' represents an error and '*' a warning.
+    .***********************..........................  Size: 50K
+...
+    ................ Size of output: 416K
+   0 Compiler errors
+   50 or more Compiler warnings
+						</code></pre>
+					</section>
+
+					<section>
+						<h1>cdash</h1>
+
+						<ul>
+							<li>ctest [Model][Action]</li>
+							<li>ctest -M [Model] -T [Action]</li>
+							<li>Models: Experimental, Continuous, Nightly</li>
+							<li>Action: Start, Update, Build, Test, MemCheck, Coverage, Submit, Configure</li>
+							<li>Example: ExperimentalMemCheck</li>
+						</ul>
+					</section>
+
+					<section>
+						<h1>ExperimentalMemCheck</h1>
+
+						<pre><code class="cmake" data-trim data-noescape>Experimental
+Total Test time (real) = 251.58 sec
+-- Processing memory checking output:
+17/131 MemCheck: #17: test_logproto .....................   Defects: 78
+20/131 MemCheck: #20: test_stats_cluster ................   Defects: 4
+38/131 MemCheck: #38: test_evtrec .......................   Defects: 2
+...
+98/131 MemCheck: #98: test_geoip2_parser ................   Defects: 12
+105/131 MemCheck: #105: test_kv_parser ....................   Defects: 2
+114/131 MemCheck: #114: test_systemd_journal ..............   Defects: 1
+MemCheck log files can be found here: ( * corresponds to test number)
+/home/peterkokai/github.com/syslog-ng/build/Testing/Temporary/MemoryChecker.*.log
+Memory checking results:
+Memory Leak - 132
+Built target ExperimentalMemCheck
+						</code></pre>
+					</section>
+				</section>
+
+				<section id="cmake-user-guide">
+					<section>
+						<h1>Bonus</h1>
+
+						<ul>
+							<li>Graphiz</li>
+							<li>Generators</li>
+						</ul>
+					</section>
+
+					<section>
+						<h1>Graphiz</h1>
+
+						<a href="img/foo-all.png" target="_blank"><img src="img/foo-all.png" style="background: transparent; border: none; box-shadow: none;"></img></a>
+
+					</section>
+
+					<section>
+						<h1>Graphiz</h1>
+
+						<pre><code class="cmake" data-trim data-noescape>
+~/workspace/projecta/build> cmake --graphviz=/tmp/foo/foo .
+~/workspace/projecta/build> dot /tmp/foo/foo -Tpng -o foo.png
+						</code></pre>
 
 					</section>
 				</section>
