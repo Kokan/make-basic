@@ -325,6 +325,7 @@ parser sudo {
 
 						</code></pre>
 					</section>
+
 					<section>
 						<pre><code data-trim data-noescape>
 source s {
@@ -339,6 +340,111 @@ log { source(s); parser(syslog-p); ... };
 						</code></pre>
 					</section>
 
+					<section>
+						<h2>iptables source</h2>
+						<pre><code data-trim data-noescape>
+April 19 11:20:13 localhost kernel: INPUT:DROP:IN=lo OUT= MAC=x SRC=127.0.0.1 DST=127.0.0.1 LEN=48 TOS=0x00
+PREC=0x00 TTL=120 ID=x PROTO=TCP SPT=x DPT=x WINDOW=x RES=0x00 SYN URGP=0
+						</code></pre>
+						<pre><code data-trim data-noescape>
+log {
+source { network("127.0.1" port(1234));
+parser iptables {
+  kv-parser(prefix(".iptables."));
+};
+};
+
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>iptables parser</h2>
+						<pre><code data-trim data-noescape>
+block parser iptables(prefix(".iptables"))
+{
+  kv-parser(prefix("`prefix`"));
+};
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>iptables source</h2>
+						<pre><code data-trim data-noescape>
+block source iptables(prefix(".iptables"))
+{
+  channel {
+	parser { kv-parser(prefix("`prefix`")); };
+  };
+};
+						</code></pre>
+					</section>
+
+					<section>
+						<h2>iptables source</h2>
+						<pre><code data-trim data-noescape>
+block source iptables(prefix(".iptables"), flags(""), ip(), port())
+{
+  channel {
+	source { network(ip("`ip`") port(`port`) flags(`flags`)); };
+	parser { kv-parser(prefix("`prefix`")); };
+  };
+};
+						</code></pre>
+					</section>
+
+				</section>
+
+				<section>
+					<section>
+						<h1>branching</h1>
+					</section>
+
+					<section>
+						<pre><code data-trim data-noescape>
+if {
+    filter { };
+    parser { };
+} elif {
+    filter { };
+    parser { };
+} else {
+    filter { };
+};
+
+						</code></pre>
+					</section>
+
+					<section>
+						<pre><code class="fragment" data-fragment-index="1" data-trim data-noescape> block parser cisco-timestamp-parser(template()) {
+    channel {
+        rewrite {
+            set("`template`" value('1'));
+        };
+						</code></pre>
+						<pre><code class="fragment" data-fragment-index="2" ata-trim data-noescape> if {
+            # timestamp from Cisco Unified Call Manager, example "Jun 14 11:57:27 PM.685 UTC"
+            # NOTE: drops msecs and timezone
+            filter { match('^[.*]?([A-Za-z]{3} [0-9 ]\d \d{2}:\d{2}:\d{2} ((AM)|(PM)))' value('1') flags(store-matches)); };
+            parser { date-parser(format('%b %d %H:%M:%S %p') template("$1")); };
+        } elif {
+						</code></pre>
+						<pre><code class="fragment" data-fragment-index="3" data-trim data-noescape> } elif {
+            # timestamp without AM/PM mark, example: "Apr 29 13:58:40.411"
+            # NOTE: drops msecs and timezone
+
+            filter { match('^[.*]?([A-Za-z]{3} [0-9 ]\d \d{2}:\d{2}:\d{2})' value('1') flags(store-matches)); };
+            parser { date-parser(format('%b %d %H:%M:%S') template("$1")); };
+        } else {
+						</code></pre>
+						<pre><code class="fragment" data-fragment-index="4" data-trim data-noescape> } else {
+            # timestamp with year information, example: "Apr 29 2017 13:58:40.411"
+            filter { match('^[.*]?([A-Za-z]{3} [0-9 ]\d \d{4} \d{2}:\d{2}:\d{2})' value('1') flags(store-matches)); };
+            parser { date-parser(format('%b %d %Y %H:%M:%S') template("$1")); };
+        };
+    };
+};
+						</code></pre>
+					</section>
 				</section>
 
 			</div>
