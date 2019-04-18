@@ -130,7 +130,7 @@ TIMESTAMP=Apr 17 07:40:54
 
 					<section>
 						<pre><code data-trim data-noescape>
-105 <18>1 2019-04-17T07:58:28+02:00 hasthelargehadroncolliderdestroyedtheworldyet.com universe 1234 - - NOPE.
+<18>1 2019-04-17T07:58:28+02:00 hasthelargehadroncolliderdestroyedtheworldyet.com universe 1234 - - NOPE.
 source s {
   network("127.0.0.1" flags(syslog-protocol));
 };
@@ -143,48 +143,100 @@ TIMESTAMP=now
 					</section>
 
 					<section>
-						<pre><code data-trim data-noescape>
-105 <18>1 2019-04-17T07:58:28+02:00 hasthelargehadroncolliderdestroyedtheworldyet.com universe 1234 - - NOPE.
-source s {
-  syslog("127.0.0.1");
-};
-
-PRIORITY=critical
-HOST=127.0.0.1
-MESSAGE=hi there
-TIMESTAMP=now
-						</code></pre>
+						<h2>example flags</h2>
+						<ul>
+							<li>assume-utf8</li>
+							<li>dont-store-legacy-msghdr</li>
+							<li>empty-lines</li>
+							<li>expect-hostname</li>
+							<li>kernel</li>
+							<li>no-hostname</li>
+							<li>no-multi-line</li>
+							<li>no-parse</li>
+							<li>sanitize-utf8</li>
+							<li>store-raw-message</li>
+							<li>syslog-protocol</li>
+							<li>validate-utf8</li>
+						</ul>
 					</section>
 
 					<section>
 						<pre><code data-trim data-noescape>
+<18>1 2019-04-17T07:58:28+02:00 hasthelargehadroncolliderdestroyedtheworldyet.com universe 1234 - - NOPE.
 source s {
   network("127.0.0.1" flags(no-parse));
 };
 
-PRIORITY=critical
-HOST=127.0.0.1
-MESSAGE=hi there
-TIMESTAMP=now
+MESSAGE=<18>1 2019-04-17T07:58:28+02:00 hasthelargehadroncolliderdestroyedtheworldyet.com universe 1234 - - NOPE.
+						</code></pre>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h1>template, macro</h1>
+					</section>
+					<section>
+						<pre><code data-trim data-noescape>
+destination d0 {
+  file("/dev/stdout");
+};
+						</code></pre>
+						<pre><code data-trim data-noescape>
+Apr 17 07:40:54 hasthelargehadroncolliderdestroyedtheworldyet.com universe[1234]: NOPE.
 						</code></pre>
 					</section>
 
 					<section>
 						<pre><code data-trim data-noescape>
-<189>29: foo: *Apr 29 13:58:40.411: %SYS-5-CONFIG_I: Configured from console by console
-						</code></pre>
-						<pre><code data-trim data-noescape>
-source s {
-  network("127.0.0.1");
+destination d0 {
+  file("/dev/stdout" template("$MESSAGE\n"));
 };
 						</code></pre>
 						<pre><code data-trim data-noescape>
-PRIORITY=critical
-HOST=127.0.0.1
-MESSAGE=hi there
-TIMESTAMP=now
+NOPE.
 						</code></pre>
 					</section>
+
+					<section>
+						<pre><code data-trim data-noescape>
+destination d0 {
+  file("/dev/stdout" template("command=${.unix.cmd} id=${.unix.uid}\n"));
+};
+						</code></pre>
+						<pre><code data-trim data-noescape>
+command=/usr/bin/nc id=1007
+						</code></pre>
+					</section>
+
+					<section>
+						<pre><code data-trim data-noescape>
+destination d0 {
+  file("/dev/stdout" template("$(sha512 message}\n"));
+};
+						</code></pre>
+						<pre><code data-trim data-noescape>
+ffcb53bdcf177e601ecf72df1edf659b94b85b41e48d8133c527259b0567714ba8ae5dcb2ae99b6ec0bcf703a09017c91d64124c1e5ba0892e56db8ea5f6488d
+						</code></pre>
+					</section>
+
+					<section>
+						<pre><code data-trim data-noescape>
+rewrite credit-card-hide {
+        subst("`credit-card-regexp`",
+              "$(sha1 --length 16 $1)",
+              value("MESSAGE"),
+              flags(global, store-matches),
+              type(pcre));
+};
+
+log { source(s); ... rewrite(credit-card-hide); ... destination(d0); };
+						</code></pre>
+						<pre><code data-trim data-noescape>
+ffcb53bdcf177e601ecf72df1edf659b94b85b41e48d8133c527259b0567714ba8ae5dcb2ae99b6ec0bcf703a09017c91d64124c1e5ba0892e56db8ea5f6488d
+						</code></pre>
+					</section>
+
 				</section>
 
 				<section>
@@ -284,33 +336,6 @@ parser syslog-p {
 
 log { source(s); parser(syslog-p); ... };
 
-						</code></pre>
-					</section>
-
-				</section>
-
-				<section>
-					<section>
-						<h1>template</h1>
-					</section>
-					<section>
-						<pre><code data-trim data-noescape>
-destination d0 {
-  file("/dev/stdout");
-};
-						</code></pre>
-						<pre><code data-trim data-noescape>
-Apr 17 07:40:54 hasthelargehadroncolliderdestroyedtheworldyet.com universe[1234]: NOPE.
-						</code></pre>
-					</section>
-					<section>
-						<pre><code data-trim data-noescape>
-destination d0 {
-  file("/dev/stdout" template("$MESSAGE\n"));
-};
-						</code></pre>
-						<pre><code data-trim data-noescape>
-NOPE.
 						</code></pre>
 					</section>
 
