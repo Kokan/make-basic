@@ -16,7 +16,6 @@
 
 				<section>
 					<section>
-						<h1>Log Parsing</h1>
 					</section>
 
 					<section>
@@ -32,7 +31,6 @@
 				<section>
 					<section>
 						<h1>One Identity</h1>
-						<img src="https://www.oneidentity.com/images/shared/oneidentity-logo.png" />
 					</section>
 				</section>
 
@@ -131,10 +129,13 @@ TIMESTAMP=Apr 17 07:40:54
 					<section>
 						<pre><code data-trim data-noescape>
 <18>1 2019-04-17T07:58:28+02:00 hasthelargehadroncolliderdestroyedtheworldyet.com universe 1234 - - NOPE.
+						</code></pre>
+						<pre><code data-trim data-noescape>
 source s {
   network("127.0.0.1" flags(syslog-protocol));
 };
-
+						</code></pre>
+						<pre><code data-trim data-noescape>
 PRIORITY=critical
 HOST=127.0.0.1
 MESSAGE=hi there
@@ -145,7 +146,6 @@ TIMESTAMP=now
 					<section>
 						<h2>example flags</h2>
 						<ul>
-							<li>assume-utf8</li>
 							<li>dont-store-legacy-msghdr</li>
 							<li>empty-lines</li>
 							<li>expect-hostname</li>
@@ -156,17 +156,19 @@ TIMESTAMP=now
 							<li>sanitize-utf8</li>
 							<li>store-raw-message</li>
 							<li>syslog-protocol</li>
-							<li>validate-utf8</li>
 						</ul>
 					</section>
 
 					<section>
 						<pre><code data-trim data-noescape>
 <18>1 2019-04-17T07:58:28+02:00 hasthelargehadroncolliderdestroyedtheworldyet.com universe 1234 - - NOPE.
+						</code></pre>
+						<pre><code data-trim data-noescape>
 source s {
   network("127.0.0.1" flags(no-parse));
 };
-
+						</code></pre>
+						<pre><code data-trim data-noescape>
 MESSAGE=<18>1 2019-04-17T07:58:28+02:00 hasthelargehadroncolliderdestroyedtheworldyet.com universe 1234 - - NOPE.
 						</code></pre>
 					</section>
@@ -315,7 +317,8 @@ parser iptables {
 					<section>
 						<h2>sudo</h2>
 						<pre><code data-trim data-noescape>
-Apr 17 14:12:30 localhost sudo[1]: peterkokai : 1 incorrect password attempt ; TTY=pts/3 ; PWD=/home/user ; USER=root ; COMMAND=/usr/bin/ps
+Apr 17 14:12:30 localhost sudo[1]: peterkokai : 1 incorrect password attempt ; TTY=pts/3 ;
+PWD=/home/user ; USER=root ; COMMAND=/usr/bin/ps
 						</code></pre>
 						<pre><code data-trim data-noescape>
 parser sudo {
@@ -446,6 +449,44 @@ if {
 						</code></pre>
 					</section>
 				</section>
+
+				<section>
+					<section>
+						<h1>app-parser</h1>
+					</section>
+
+					<section>
+						<pre><code data-trim data-noescape>
+parser { app-parser(topic(custom-name)); };
+						</code></pre>
+					</section>
+
+					<section>
+						<pre><code data-trim data-noescape>
+application my_app_parser_name[custom-name]
+{
+   parser { xml-parser(); };
+};
+						</code></pre>
+					</section>
+
+					<section>
+						<pre><code data-trim data-noescape>
+application iptables[syslog] {
+        filter { facility(kern) and
+                 program("kernel" type(string)) and
+                 message("PROTO=" type(string) flags(substring)); };
+        parser { iptables-parser(); };
+};
+
+						</code></pre>
+					</section>
+				</section>
+
+                                <section>
+                                        <i class="fa fa-question fa-5x" aria-hidden="true"></i>
+                                        <i class="fa fa-lightbulb-o fa-5x" aria-hidden="true"></i>
+                                </section>
 
 			</div>
 
