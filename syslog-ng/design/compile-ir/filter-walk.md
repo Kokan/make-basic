@@ -30,6 +30,7 @@ The following should be done to have the above:
 4. Create the example algorithm to replace chain of or operators
 5. Some after thoughts about this solution take the time factor into account
 
+---
 
 1. Clean up *LogExprNode* (currently the *content*, *layout* of *LogExprNode* are not really in sync with the real *LogPipe* it holds, see details later)
 
