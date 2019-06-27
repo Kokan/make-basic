@@ -1,0 +1,69 @@
+@startuml
+class LogExprNode {
+  gint16 layout {Single, Junction,..}
+  gint16 content {Source, Parser, Filter, ...}
+
+  LogExprNode *parent
+  LogExprNode *children
+  LogExprNode *next
+
+  gpointer object (LogPipe mostly)
+}
+
+class LogPipe {
+  LogPipe *pipe_next
+  LogExprNode *expr_node
+}
+
+class LogFilterPipe {
+  LogPipe super
+
+  FilterExprNode *expr
+}
+
+class FilterExprNode {
+  gchar* type
+
+  gboolean (*eval)(FilterExprNode *self, LogMessage **msg, gint num_msg);
+}
+
+class FilterCall {
+  FilterExprNode *filter_expr
+}
+
+class FilterCmp {
+   LogTemplate *left
+   LogTemplate *right
+   gint cmp_op
+}
+
+class FilterOp {
+  FilterExprNode *left
+  FilterExprNode *right
+}
+
+class FilterRE {
+   LogMatcher *matcher
+}
+
+LogExprNode --o LogExprNode
+LogExprNode --o LogPipe : before compile
+LogPipe --o LogExprNode : after compile
+LogFilterPipe --|> LogPipe
+LogFilterPipe --* FilterExprNode
+FilterCall --|> FilterExprNode
+FilterCall --o FilterExprNode
+FilterCmp --|> FilterExprNode
+FilterOp --|> FilterExprNode
+FilterOR --|> FilterOp
+FilterAND --|> FilterOp
+FilterRE --|> FilterExprNode
+FilterRE --* LogMatcher
+FilterMatch --|> FilterRE
+FilterMESSAGE --|> FilterRE
+FilterHOST --|> FilterRE
+LogMatcher --|> LogMatcherRE
+LogMatcher --|> LogMatcherString
+LogMatcher --|> LogMatcherGlob
+@enduml
+

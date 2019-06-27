@@ -4,18 +4,21 @@ Requirement
 * Provide a framework via user[1] could manipulate the graph of filter expressions. (for example could replace any sub-graph with a different subgraph)
 * Supply an example algorithm that find and replaces a chain of same type of filters chained with *or* operator with an optimised version of the union of the filters expressions.
 
+# Class diagram about the current state of classes
+
+![class diagram](http://www.plantuml.com/plantuml/proxy?src=https://raw.github.com/Kokan/presentations/logexprnode-ir/syslog-ng/design/compile-ir/syslog-ng-class-diagram-slice.txt)
 
 # Two possible solution
 
 After some discussion two path was layed down, and explored in more details in order to choose/learn from it.
 1. Use the existing *FilterExprNode* that is a graph and owned by *LogFilterPipe*
-2. Use the *LogExprNode* to achieve the same (note: the *LogExprNode* currently knows about *LogFilterPipe* which owns *LogFilterPipe* that is the graph of filter expressions)
+2. Use the *LogExprNode* to achieve the same (note: the *LogExprNode* currently has a *LogFilterPipe* which owns *FilterExprNode* that is the graph of filter expressions)
 
 ## 1. Use the existing *FilterExprNode* that is a graph and owned by *LogFilterPipe*
 
 TODO by Szemere Laszlo
 
-## 2. Use the *LogExprNode* to achieve the same (note: the *LogExprNode* currently mows about *LogFilterPipe* which owns *LogFilterPipe* that is the graph of filter expressions)
+## 2. Use the *LogExprNode* to achieve the same (note: the *LogExprNode* currently has a *LogFilterPipe* which owns *FilterExprNode* that is the graph of filter expressions)
 
 The idea is to have one IR[2] of the logpaths/logpipes (well it kinda already has with *LogExprNode*), and storing a lot of structural thing (the expression graph) in *FilterExprNode* is make the idea to optimise on the level of IR harder (if not impossible).
 This was brought up because providing a way to manipulate a graph of *LogExprNode* is more general, it is almost as general as using *LogPipe* (which I would like to avoid).
