@@ -25,7 +25,7 @@ This was brought up because providing a way to manipulate a graph of *LogExprNod
 
 The following should be done to have the above:
 1. Clean up *LogExprNode* (currently the *content*, *layout* of *LogExprNode* are not really in sync with the real *LogPipe* it holds, see details later)
-2. Build *LogExprNode* tree instead of *LogFilterPipe*
+2. Build *LogExprNode* tree instead of *FilterExprNode*
 3. Create a graph walk framework
 4. Create the example algorithm to replace chain of or operators
 5. Some after thoughts about this solution take the time factor into account
@@ -38,7 +38,7 @@ Currently for example a *LogExprNode* which actually owns the *LogFilterPipe* is
 This kind of misalignment do not have much effect currently, because those properties not really used now. (source, destination is which treated as special)
 
 
-2. Build *LogExprNode* tree instead of *LogFilterPipe*
+2. Build *LogExprNode* tree instead of *FilterExprNode*
 
 As of now (not the suggested change):
 The current setup is *LogExprNode* --owns--> *LogFilterPipe* --owns--> *FilterExprNode* 
