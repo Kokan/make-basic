@@ -43,9 +43,7 @@ test%4 = refl
 
 
 even : Nat -> Bool
---even = {! !}
-even zero = true
-even (suc x) = if even x then false else true
+even = {! !}
 
 
 --these are tests, if the *refl* is yellow or underlined
@@ -66,9 +64,7 @@ testeven4 = refl
 
 -- Create a List of List Chars from a List Chars, such that each Char became a List Char
 dummyExplode : List Char -> List (List Char)
---dummyExplode xs = ?
-dummyExplode [] = []
-dummyExplode (x ∷ xs) = [ x ] ∷ dummyExplode xs
+dummyExplode xs = ?
 
 testdummyExplode1 : Eq _ (dummyExplode []) []
 testdummyExplode1 = refl
@@ -79,9 +75,7 @@ testdummyExplode2 = refl
 
 --
 filterNat : (Nat -> Bool) -> List Nat -> List Nat
---filterNat f xs = {! !}
-filterNat f [] = []
-filterNat f (x ∷ xs) = if even x then x ∷ filterNat f xs else filterNat f xs
+filterNat f xs = {! !}
 
 testfilterNat1 : Eq _ (filterNat even []) []
 testfilterNat1 = refl
@@ -97,9 +91,7 @@ testfilterNat4 = refl
 
 --
 concat : List Bool -> List Bool -> List Bool
---concat xs ys = ?
-concat [] ys = ys
-concat (x ∷ xs) ys = x ∷ concat xs ys
+concat xs ys = ?
 
 testconcat1 : Eq _ (concat [] []) []
 testconcat1 = refl
@@ -124,10 +116,7 @@ testconcat7 = refl
 
 -- leq = less or equal
 leq : Nat -> Nat -> Bool
---leq x y = ?
-leq zero _ = true
-leq (suc _) zero = false
-leq (suc x) (suc y) = leq x y
+leq x y = ?
 
 
 testleq1 : Eq _ (leq 0 0) true
@@ -145,36 +134,12 @@ testleq4 = refl
 testleq5 : Eq _ (leq 30 77) true
 testleq5 = refl
 
-
---merge two sorted list
-merge : (Nat -> Nat -> Bool) -> List Nat -> List Nat -> List Nat
-merge compare [] ys = ys
-merge compare (x ∷ xs) [] = x ∷ xs
-merge compare (x ∷ xs) (y ∷ ys) = if compare x y then x ∷ merge compare xs (y ∷ ys) else (y ∷ merge compare (x ∷ xs) ys)
-
-testmerge1 : Eq _ (merge leq [] []) []
-testmerge1 = refl
-
-testmerge2 : Eq _ (merge leq [ 1 ] []) [ 1 ]
-testmerge2 = refl
-
-testmerge3 : Eq _ (merge leq [] [ 1 ]) [ 1 ]
-testmerge3 = refl
-
-testmerge4 : Eq _ (merge leq [ 1 , 2 , 3 ] [ 1 ]) [ 1 , 1 , 2 , 3 ]
-testmerge4 = refl
-
-testmerge5 : Eq _ (merge leq [ 2 , 4  ] [ 1 , 3  ]) [ 1 , 2 , 3 , 4 ]
-testmerge5 = refl
-
 max : Nat -> Nat -> Nat
-max a b = if leq a b then b else a
+max a b = {!  !}
 
 --fold
 fold : (Nat -> Nat -> Nat) -> Nat -> List Nat -> Nat
---fold f d xs = ?
-fold f d [] = d
-fold f d (x ∷ xs) = f x (fold f d xs)
+fold f d xs = ?
 
 testfold1 : Eq _ (fold _+_ 4 []) 4
 testfold1 = refl
@@ -194,6 +159,26 @@ testfold5 = refl
 testfold6 : Eq _ (fold max 99 [ 1 , 5 , 100 ]) 100
 testfold6 = refl
 
+
+--merge two sorted list
+merge : (Nat -> Nat -> Bool) -> List Nat -> List Nat -> List Nat
+merge compare xs ys = ?
+
+testmerge1 : Eq _ (merge leq [] []) []
+testmerge1 = refl
+
+testmerge2 : Eq _ (merge leq [ 1 ] []) [ 1 ]
+testmerge2 = refl
+
+testmerge3 : Eq _ (merge leq [] [ 1 ]) [ 1 ]
+testmerge3 = refl
+
+testmerge4 : Eq _ (merge leq [ 1 , 2 , 3 ] [ 1 ]) [ 1 , 1 , 2 , 3 ]
+testmerge4 = refl
+
+testmerge5 : Eq _ (merge leq [ 2 , 4  ] [ 1 , 3  ]) [ 1 , 2 , 3 , 4 ]
+testmerge5 = refl
+
 --length
 lengthTail : ∀{i}{A : Set i} → Nat → List A →  Nat
 lengthTail len [] = len
@@ -205,25 +190,12 @@ length = lengthTail 0
 
 --slice
 slice : ∀{i}{A : Set i} → Nat →  Nat → List A → List A
-slice zero _ [] = []
-slice zero zero (x ∷ xs) = []
-slice zero (suc to) (x ∷ xs) = x ∷ slice zero to xs
-slice (suc from) to [] = slice from to []
-slice (suc from) to (x ∷ xs) = slice from to xs
+slice from to xs = ?
 
 -- if the termination checker fails, that is okay
 -- it is possible to create a sort that the termination checker passes
 -- but that is not scope
 sort : List Nat -> (Nat -> Nat -> Bool) -> List Nat
 --sort xs compare = ?
-sort [] compare = []
-sort [ x ] compare = [ x ]
-sort [ x , y ] compare = if compare x y then [ x , y ] else [ y , x ]
-sort (z ∷ x ∷ y ∷ xs) compare = merge compare
-                                      (sort (slice 0 (div2 ( 3 + length xs)) (y ∷ x ∷ y ∷ xs)) compare)
-                                      (sort (slice (suc (div2 ( 3 + length xs))) (3 + length xs) (y ∷ x ∷ y ∷ xs)) compare)
-
-
-
-
+sort xs compare = ?
 
