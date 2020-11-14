@@ -1,4 +1,4 @@
-module homework where
+module homework01 where
 
 open import Agda.Builtin.Nat
 open import Agda.Builtin.Float
